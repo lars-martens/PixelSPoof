@@ -12,6 +12,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import com.kashi.caimanspoof.KernelSpoofer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,17 +52,24 @@ fun MainScreen(
     configManager: ConfigManager
 ) {
     val context = LocalContext.current
-    var selectedProfile by remember { 
-        mutableStateOf(prefs.getString("selected_profile", "mustang") ?: "mustang") 
+    var selectedProfile by remember {
+        mutableStateOf(prefs.getString("selected_profile", "mustang") ?: "mustang")
     }
     var profiles by remember { mutableStateOf(DeviceProfile.getAllProfiles()) }
     var isLoading by remember { mutableStateOf(false) }
+    var moduleEnabled by remember { mutableStateOf(prefs.getBoolean("module_enabled", true)) }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
         // Header
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -79,6 +90,7 @@ fun MainScreen(
                 )
             }
         }
+    }
         
         Spacer(modifier = Modifier.height(16.dp))
         
@@ -102,10 +114,28 @@ fun MainScreen(
                         ProfileItem(
                             profile = profile,
                             isSelected = selectedProfile == profile.device,
-                            onSelect = { 
-                                selectedProfile = profile.device
-                                prefs.edit().putString("selected_profile", profile.device).apply()
-                            }
+                            onSelect = {
+                                    selectedProfile = profile.device
+                                    prefs.edit().putString("selected_profile", profile.device).apply()
+
+                                    // If module is enabled, attempt to apply kernel-level spoofing immediately
+                                    if (moduleEnabled) {
+                                        val selected = profiles.find { it.device == profile.device } ?: DeviceProfile.getPixel10ProXL()
+                                        scope.launch(Dispatchers.IO) {
+                                            val success = try {
+                                                KernelSpoofer().applyKernelSpoofing(selected)
+                                            } catch (_: Exception) {
+                                                false
+                                            }
+                                            // Post result to UI
+                                            if (success) {
+                                                scope.launch { snackbarHostState.showSnackbar("Kernel spoof applied") }
+                                            } else {
+                                                scope.launch { snackbarHostState.showSnackbar("Kernel spoof failed or requires root") }
+                                            }
+                                        }
+                                    }
+                                }
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -156,9 +186,24 @@ fun MainScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(
-                onClick = { 
-                    // Apply changes - restart LSPosed module
-                    // This will be picked up by the SimpleSpoofer module
+                onClick = {
+                    // Persist module enabled state
+                    prefs.edit().putBoolean("module_enabled", moduleEnabled).apply()
+
+                    // Apply kernel-level spoofing for the selected profile
+                    val selected = profiles.find { it.device == selectedProfile } ?: DeviceProfile.getPixel10ProXL()
+                    scope.launch(Dispatchers.IO) {
+                        val success = try {
+                            KernelSpoofer().applyKernelSpoofing(selected)
+                        } catch (_: Exception) {
+                            false
+                        }
+                        if (success) {
+                            scope.launch { snackbarHostState.showSnackbar("Kernel spoof applied") }
+                        } else {
+                            scope.launch { snackbarHostState.showSnackbar("Kernel spoof failed or requires root") }
+                        }
+                    }
                 },
                 modifier = Modifier.weight(1f)
             ) {

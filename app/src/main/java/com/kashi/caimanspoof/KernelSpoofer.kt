@@ -11,8 +11,9 @@ class KernelSpoofer {
     // This function will be called from MainHook.kt
     fun applyKernelSpoofing(profile: DeviceProfile): Boolean {
         Log.i(TAG, "Attempting to apply kernel-level spoofing...")
-        if (!isKernelSUActive()) {
-            Log.e(TAG, "KernelSU not active. Cannot apply kernel-level spoofing.")
+        val suPath = findSuPath()
+        if (suPath == null) {
+            Log.e(TAG, "No su binary found in known locations. Cannot apply kernel-level spoofing.")
             return false
         }
 
@@ -22,19 +23,47 @@ class KernelSpoofer {
             return false
         }
 
-        return executeKernelCommands(commands)
+        return executeKernelCommands(commands, suPath)
     }
 
     private fun isKernelSUActive(): Boolean {
-        // Your existing logic from KernelSUIntegration.kt
-        // Check for su access via KernelSU
-        return try {
-            val process = Runtime.getRuntime().exec("su -c 'echo test'")
-            process.waitFor() == 0
-        } catch (e: Exception) {
-            Log.e(TAG, "Error checking for KernelSU: ${e.message}")
-            false
+        // Deprecated: use findSuPath() and explicit exec with returned path.
+        return findSuPath() != null
+    }
+
+    /**
+     * Look for a usable su binary in common locations and return its path or null.
+     */
+    private fun findSuPath(): String? {
+        val candidates = listOf(
+            "/system/bin/su",
+            "/system/xbin/su",
+            "/sbin/su",
+            "/vendor/bin/su",
+            "/magisk/su",
+            "/sbin/k-su",
+            "/system/bin/ksu",
+            "/system/xbin/ksu"
+        )
+
+        for (p in candidates) {
+            try {
+                val f = java.io.File(p)
+                if (f.exists() && f.canExecute()) return p
+            } catch (_: Exception) {
+            }
         }
+
+        // Fallback: try platform 'which su'
+        try {
+            val which = Runtime.getRuntime().exec(arrayOf("/system/bin/sh", "-c", "which su"))
+            val out = which.inputStream.bufferedReader().readText().trim()
+            which.waitFor()
+            if (out.isNotBlank()) return out
+        } catch (_: Exception) {
+        }
+
+        return null
     }
 
     // A central place to generate all spoofing commands
@@ -55,16 +84,31 @@ class KernelSpoofer {
         return commands
     }
 
-    private fun executeKernelCommands(commands: List<String>): Boolean {
+    private fun executeKernelCommands(commands: List<String>, suPath: String): Boolean {
         try {
-            val process = Runtime.getRuntime().exec("su")
+            // Start the chosen su binary and feed commands to its stdin
+            val pb = ProcessBuilder(suPath)
+            pb.redirectErrorStream(true)
+            val process = pb.start()
+
             val os = process.outputStream
             val sb = StringBuilder()
             commands.forEach { sb.append("$it\n") }
             os.write(sb.toString().toByteArray())
             os.flush()
             os.close()
-            return process.waitFor() == 0
+
+            val exit = process.waitFor()
+            if (exit != 0) {
+                Log.e(TAG, "su process exited with code $exit")
+                // Attempt to read any output for debugging
+                try {
+                    val out = process.inputStream.bufferedReader().readText()
+                    Log.e(TAG, "su output: $out")
+                } catch (_: Exception) {
+                }
+            }
+            return exit == 0
         } catch (e: Exception) {
             Log.e(TAG, "Failed to execute kernel commands: ${e.message}")
             return false

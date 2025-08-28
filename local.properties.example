@@ -1,0 +1,13 @@
+## Copy this file to local.properties and set the path to your Android SDK
+# Example for Windows (PowerShell / cmd):
+# sdk.dir=C:\Users\<YourUser>\AppData\Local\Android\Sdk
+# Example for macOS/Linux:
+# sdk.dir=/Users/<YourUser>/Library/Android/sdk
+
+# Uncomment and update the line below with your SDK path
+# sdk.dir=
+
+# Note: local.properties is intentionally not checked into git because it contains
+# machine-specific configuration. Copy this file to local.properties in the repo
+# root and set sdk.dir to your Android SDK installation path to enable building
+# with the Gradle wrapper.
