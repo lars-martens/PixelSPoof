@@ -53,6 +53,10 @@ class NativeHooking private constructor() {
     }
     
     private val hookedMethods = mutableSetOf<String>()
+    // Map stream identity -> file path for streams created from files
+    private val streamPathMap = mutableMapOf<Int, String>()
+    // Map stream identity -> current read offset in spoof buffer
+    private val streamOffsetMap = mutableMapOf<Int, Int>()
     
     /**
      * Initialize native code hooking system
@@ -238,7 +242,7 @@ class NativeHooking private constructor() {
                 }
             )
             
-            // Hook file reading
+            // Hook file reading (implement /proc/cpuinfo spoofing)
             hookFileReading(lpparam, profile)
             
         } catch (e: Exception) {
@@ -428,10 +432,203 @@ class NativeHooking private constructor() {
     
     private fun hookFileReading(lpparam: XC_LoadPackage.LoadPackageParam, profile: DeviceProfile) {
         // Hook file reading operations to spoof device-specific files
+        try {
+            // Hook FileInputStream(File)
+            XposedHelpers.findAndHookConstructor(
+                java.io.FileInputStream::class.java,
+                java.io.File::class.java,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        try {
+                            val file = param.args[0] as java.io.File
+                            val stream = param.thisObject
+                            val id = System.identityHashCode(stream)
+                            streamPathMap[id] = file.absolutePath
+                            streamOffsetMap[id] = 0
+                            // If this stream is for /proc/cpuinfo, prime the spoof buffer
+                            if (file.absolutePath.contains("/proc/cpuinfo") && shouldSpoofCpuInfo(file.absolutePath, profile)) {
+                                StealthManager.stealthLog("🔧 FileInputStream opened for /proc/cpuinfo - preparing spoof buffer")
+                            }
+                        } catch (e: Exception) {
+                            // ignore
+                        }
+                    }
+                }
+            )
+
+            // Hook FileInputStream(String)
+            XposedHelpers.findAndHookConstructor(
+                java.io.FileInputStream::class.java,
+                String::class.java,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        try {
+                            val path = param.args[0] as String
+                            val stream = param.thisObject
+                            val id = System.identityHashCode(stream)
+                            streamPathMap[id] = path
+                            streamOffsetMap[id] = 0
+                            if (path.contains("/proc/cpuinfo") && shouldSpoofCpuInfo(path, profile)) {
+                                StealthManager.stealthLog("🔧 FileInputStream(String) opened for /proc/cpuinfo - preparing spoof buffer")
+                            }
+                        } catch (e: Exception) {
+                        }
+                    }
+                }
+            )
+
+            // Hook RandomAccessFile(File, String)
+            XposedHelpers.findAndHookConstructor(
+                java.io.RandomAccessFile::class.java,
+                java.io.File::class.java,
+                String::class.java,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        try {
+                            val file = param.args[0] as java.io.File
+                            val raf = param.thisObject
+                            val id = System.identityHashCode(raf)
+                            streamPathMap[id] = file.absolutePath
+                            streamOffsetMap[id] = 0
+                        } catch (e: Exception) {
+                        }
+                    }
+                }
+            )
+
+            // Hook InputStream.read(byte[], int, int) to inject spoofed content for /proc/cpuinfo
+            val inputStreamClass = java.io.InputStream::class.java
+            XposedHelpers.findAndHookMethod(
+                inputStreamClass,
+                "read",
+                ByteArray::class.java,
+                Int::class.javaPrimitiveType,
+                Int::class.javaPrimitiveType,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        try {
+                            val thiz = param.thisObject
+                            val id = System.identityHashCode(thiz)
+                            val path = streamPathMap[id]
+                            if (path != null && path.contains("/proc/cpuinfo") && shouldSpoofCpuInfo(path, profile)) {
+                                val buffer = param.args[0] as ByteArray
+                                val offset = param.args[1] as Int
+                                val length = param.args[2] as Int
+                                val spoof = buildCpuInfoSpoof(profile).toByteArray()
+                                val curOffset = streamOffsetMap.getOrDefault(id, 0)
+                                if (curOffset >= spoof.size) {
+                                    param.result = -1 // EOF
+                                    return
+                                }
+                                val toCopy = Math.min(length, spoof.size - curOffset)
+                                System.arraycopy(spoof, curOffset, buffer, offset, toCopy)
+                                streamOffsetMap[id] = curOffset + toCopy
+                                param.result = toCopy
+                                StealthManager.stealthLog("🎯 Spoofed /proc/cpuinfo read: returned $toCopy bytes")
+                            }
+                        } catch (e: Exception) {
+                            // ignore and let original read run
+                        }
+                    }
+                }
+            )
+
+            StealthManager.stealthLog("✅ File reading hooks installed for CPU info spoofing")
+        } catch (e: Exception) {
+            StealthManager.stealthLog("❌ File reading hooks failed: ${e.message}")
+        }
+
+        // Also hook Runtime.exec and ProcessBuilder.start to catch shell-based reads like `cat /proc/cpuinfo` or `getprop`
+        try {
+            // Helper to check if a command targets cpuinfo or getprop
+            fun commandTargetsCpuInfo(cmdParts: Array<String>): Boolean {
+                return cmdParts.any { it.contains("/proc/cpuinfo") || it.contains("getprop") || it.contains("cat") && it.contains("cpuinfo") }
+            }
+
+            // Hook Runtime.exec(String)
+            XposedHelpers.findAndHookMethod(
+                Runtime::class.java,
+                "exec",
+                String::class.java,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        try {
+                            val cmd = param.args[0] as String
+                            val parts = cmd.split(Regex("\\s+"))
+                            if (commandTargetsCpuInfo(parts.toTypedArray())) {
+                                param.result = FakeProcess(buildCpuInfoSpoof(profile).toByteArray())
+                                StealthManager.stealthLog("🎯 Intercepted Runtime.exec(String): returning spoofed cpuinfo")
+                            }
+                        } catch (e: Exception) {
+                        }
+                    }
+                }
+            )
+
+            // Hook Runtime.exec(String[])
+            XposedHelpers.findAndHookMethod(
+                Runtime::class.java,
+                "exec",
+                Array<String>::class.java,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        try {
+                            val args = param.args[0] as Array<String>
+                            if (commandTargetsCpuInfo(args)) {
+                                param.result = FakeProcess(buildCpuInfoSpoof(profile).toByteArray())
+                                StealthManager.stealthLog("🎯 Intercepted Runtime.exec(String[]): returning spoofed cpuinfo")
+                            }
+                        } catch (e: Exception) {
+                        }
+                    }
+                }
+            )
+
+            // Hook ProcessBuilder.start()
+            XposedHelpers.findAndHookMethod(
+                ProcessBuilder::class.java,
+                "start",
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        try {
+                            val pb = param.thisObject as ProcessBuilder
+                            val cmdList = pb.command().toTypedArray()
+                            if (commandTargetsCpuInfo(cmdList)) {
+                                param.result = FakeProcess(buildCpuInfoSpoof(profile).toByteArray())
+                                StealthManager.stealthLog("🎯 Intercepted ProcessBuilder.start(): returning spoofed cpuinfo")
+                            }
+                        } catch (e: Exception) {
+                        }
+                    }
+                }
+            )
+
+            StealthManager.stealthLog("✅ Exec/ProcessBuilder hooks installed for shell-based cpuinfo reads")
+        } catch (e: Exception) {
+            StealthManager.stealthLog("❌ Exec hooks failed: ${e.message}")
+        }
     }
     
     private fun shouldSpoofCpuInfo(path: String, profile: DeviceProfile): Boolean {
         return path.contains("cpu") && profile.device.startsWith("pixel")
+    }
+
+    private fun buildCpuInfoSpoof(profile: DeviceProfile): String {
+        // Construct a /proc/cpuinfo-like output tailored to the profile
+        val sb = StringBuilder()
+        sb.append("Processor\t: ${profile.processorModel}\n")
+        sb.append("Hardware\t: ${profile.device}\n")
+        sb.append("Model name\t: ${profile.processorModel}\n")
+        sb.append("Implementer\t: Google\n")
+        sb.append("Variant\t: 0x0\n")
+        sb.append("CPU part\t: 0x0000\n")
+        sb.append("Revision\t: 0\n")
+        sb.append("Features\t: neon aes pmull cpuid\n")
+        sb.append("CPU implementer\t: 0x41\n")
+        sb.append("CPU architecture: 8\n")
+        sb.append("Hardware vendor\t: ${profile.socManufacturer}\n")
+        sb.append("Serial\t\t: ${profile.serialNumber}\n")
+        return sb.toString()
     }
     
     private fun shouldSpoofHardwareDevice(path: String, profile: DeviceProfile): Boolean {
@@ -442,4 +639,33 @@ class NativeHooking private constructor() {
         // Get all loaded classes (simplified implementation)
         return emptyList()
     }
+}
+
+/**
+ * Minimal fake Process implementation to return spoofed stdout bytes.
+ */
+class FakeProcess(private val outBytes: ByteArray) : Process() {
+    private var consumed = false
+
+    override fun getOutputStream(): java.io.OutputStream {
+        return java.io.ByteArrayOutputStream() // not used
+    }
+
+    override fun getInputStream(): java.io.InputStream {
+        return java.io.ByteArrayInputStream(outBytes)
+    }
+
+    override fun getErrorStream(): java.io.InputStream {
+        return java.io.ByteArrayInputStream(ByteArray(0))
+    }
+
+    override fun waitFor(): Int {
+        return 0
+    }
+
+    override fun exitValue(): Int {
+        return 0
+    }
+
+    override fun destroy() {}
 }

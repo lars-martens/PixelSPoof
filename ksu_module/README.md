@@ -1,12 +1,13 @@
 # Pixel 10 Pro XL KernelSU Spoofing Module
 
-This KernelSU module modifies system properties to make your device appear as a Google Pixel 10 Pro XL with Tensor G5 processor running Android 16.
+This KernelSU module modifies system properties to make your device appear as a Google Pixel 10 Pro XL with Tensor G5 processor running Android 15.
 
 ## Features
 - ✅ Complete system-level property spoofing
+- ✅ Hardware CPU/SOC information spoofing (/proc/cpuinfo)
 - ✅ Google Play Store certification fix
 - ✅ Pixel exclusive features enabled
-- ✅ Android 16 (API 36) spoofing
+- ✅ Android 15 (API 35) spoofing
 - ✅ Tensor G5 hardware spoofing
 - ✅ Works with KSU-Next + SusFS
 
@@ -20,10 +21,11 @@ This KernelSU module modifies system properties to make your device appear as a 
 - Device manufacturer: Google
 - Device model: Pixel 10 Pro XL  
 - Device codename: mustang
-- Android version: 16 (API 36)
+- Android version: 15 (API 35)
 - SoC: Google Tensor G5
-- Build fingerprint: Pixel 10 Pro XL beta
+- Build fingerprint: google/mustang/mustang:15/BP2A.250805.005/2025082800:user/release-keys
 - Security patch: 2025-08-05
+- CPU info: Spoofed to show Google Tensor G5 cores
 
 ## Verification
 After reboot, check:
@@ -31,6 +33,8 @@ After reboot, check:
 getprop ro.product.manufacturer  # Should show "Google"
 getprop ro.product.model         # Should show "Pixel 10 Pro XL"
 getprop ro.build.fingerprint     # Should show Pixel fingerprint
+getprop ro.soc.model            # Should show "Tensor G5"
+cat /proc/cpuinfo               # Should show Google CPU cores
 ```
 
 ## Compatibility

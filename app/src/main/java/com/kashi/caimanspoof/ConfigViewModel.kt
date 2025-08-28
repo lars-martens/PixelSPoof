@@ -35,8 +35,30 @@ class ConfigViewModel(application: Application) : AndroidViewModel(application) 
     fun selectProfile(profileName: String) {
         viewModelScope.launch {
             try {
-                configManager.setSelectedProfile(profileName)
+                // Update ConfigManager synchronously
+                configManager.setSelectedProfileSync(profileName)
+                
+                // Get the updated profile
+                val profile = configManager.getCurrentProfileSync()
+                
+                // Log the profile switch attempt
+                android.util.Log.d("PixelSpoof", "Profile switch requested: $profileName -> ${profile.displayName}")
+                
+                // Update DeviceProfileManager and PropertySpoofer
+                if (profile.displayName == profileName) {
+                    val success = DeviceProfileManager.getInstance().switchProfile(profile.device, null)
+                    if (success) {
+                        // Force refresh PropertySpoofer with new profile
+                        PropertySpoofer.getInstance().refreshPropertiesForProfile(profile)
+                        android.util.Log.d("PixelSpoof", "Profile switched successfully to: ${profile.displayName}")
+                    } else {
+                        android.util.Log.e("PixelSpoof", "DeviceProfileManager.switchProfile failed")
+                    }
+                } else {
+                    android.util.Log.e("PixelSpoof", "Profile name mismatch: requested $profileName, got ${profile.displayName}")
+                }
             } catch (e: Exception) {
+                android.util.Log.e("PixelSpoof", "Profile switch error: ${e.message}")
                 // Error handling is managed by ConfigManager
             }
         }

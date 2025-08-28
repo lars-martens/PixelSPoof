@@ -247,6 +247,18 @@ class ConfigManager private constructor(private val context: Context?) {
     }
     
     /**
+     * Set selected profile synchronously (for Xposed hooks)
+     */
+    fun setSelectedProfileSync(profileName: String) {
+        val profile = findProfileByName(profileName) ?: return
+        
+        _selectedProfile.value = profile
+        prefs?.edit()?.putString(KEY_SELECTED_PROFILE, profile.displayName)?.apply()
+        
+        StealthManager.stealthLog("Selected profile (sync): ${profile.displayName}")
+    }
+    
+    /**
      * Force refresh from server
      */
     suspend fun forceRefresh() = withContext(Dispatchers.IO) {

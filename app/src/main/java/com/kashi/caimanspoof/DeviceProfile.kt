@@ -35,7 +35,18 @@ data class DeviceProfile(
     val radioVersion: String = "",
     val vendorFingerprint: String = fingerprint,
     val bootloaderVersion: String = "",
-    val serialNumber: String = generateSecureSerial()
+    val serialNumber: String = generateSecureSerial(),
+    val isCustom: Boolean = false,
+    // Hardware-specific properties
+    val socModel: String = "",
+    val socManufacturer: String = "",
+    val cpuAbi: String = "arm64-v8a",
+    val cpuAbiList: String = "arm64-v8a,armeabi-v7a,armeabi",
+    val hardwarePlatform: String = "",
+    val processorModel: String = "",
+    val gpuModel: String = "",
+    val displayDensity: String = "560",
+    val displaySize: String = ""
 ) {
     
     companion object {
@@ -97,7 +108,15 @@ data class DeviceProfile(
             securityPatch = "2025-08-05",
             hardwareRevision = "MP1.0",
             radioVersion = "g5300q-250725-250805-B-12701944",
-            bootloaderVersion = "mustang-1.0-12701944"
+            bootloaderVersion = "mustang-1.0-12701944",
+            // Hardware-specific properties
+            socModel = "Tensor G5",
+            socManufacturer = "Google",
+            hardwarePlatform = "gs102",
+            processorModel = "Google Tensor G5",
+            gpuModel = "Mali-G78 MP24",
+            displayDensity = "560",
+            displaySize = "6.8"
         )
         
         /**
@@ -119,7 +138,15 @@ data class DeviceProfile(
             securityPatch = "2025-08-05",
             hardwareRevision = "FP1.0",
             radioVersion = "g5300q-250725-250805-B-12701944",
-            bootloaderVersion = "frankel-1.0-12701944"
+            bootloaderVersion = "frankel-1.0-12701944",
+            // Hardware-specific properties
+            socModel = "Tensor G4",
+            socManufacturer = "Google",
+            hardwarePlatform = "gs101",
+            processorModel = "Google Tensor G4",
+            gpuModel = "Mali-G78 MP24",
+            displayDensity = "560",
+            displaySize = "6.3"
         )
         
         /**
@@ -141,16 +168,89 @@ data class DeviceProfile(
             securityPatch = "2025-07-05",
             hardwareRevision = "CP1.0",
             radioVersion = "g5300q-250610-250705-B-12345678",
-            bootloaderVersion = "caiman-1.0-12345678"
+            bootloaderVersion = "caiman-1.0-12345678",
+            // Hardware-specific properties
+            socModel = "Tensor G3",
+            socManufacturer = "Google",
+            hardwarePlatform = "gs201",
+            processorModel = "Google Tensor G3",
+            gpuModel = "Mali-G710 MP7",
+            displayDensity = "500",
+            displaySize = "6.8"
         )
         
+        /**
+         * Pixel 9 Pro profile 
+         */
+        fun getPixel9Pro() = DeviceProfile(
+            manufacturer = "Google",
+            brand = "google",
+            device = "komodo",
+            model = "Pixel 9 Pro",
+            board = "komodo", 
+            product = "komodo_beta",
+            buildId = "BP31.250610.009",
+            fingerprint = "google/komodo_beta/komodo:16/BP31.250610.009/12701944:user/release-keys",
+            tags = "release-keys",
+            type = "user",
+            displayName = "Pixel 9 Pro",
+            description = "Pixel 9 Pro with Android 16 QPR1 Beta",
+            securityPatch = "2025-07-05",
+            hardwareRevision = "KP1.0",
+            radioVersion = "g5300q-250610-250705-B-12701944",
+            bootloaderVersion = "komodo-1.0-12701944"
+        )
+
+        /**
+         * Pixel 10 profile
+         */
+        fun getPixel10() = DeviceProfile(
+            manufacturer = "Google",
+            brand = "google",
+            device = "blazer",
+            model = "Pixel 10",
+            board = "blazer",
+            product = "blazer",
+            buildId = "BP41.250725.006",
+            fingerprint = "google/blazer/blazer:16/BP41.250725.006/12701944:user/release-keys",
+            tags = "release-keys",
+            type = "user",
+            displayName = "Pixel 10",
+            description = "Standard Pixel 10 with Android 16 QPR2 Beta",
+            securityPatch = "2025-08-05",
+            hardwareRevision = "BP1.0",
+            radioVersion = "g5300q-250725-250805-B-12701944",
+            bootloaderVersion = "blazer-1.0-12701944"
+        )
+
+        /**
+         * Pixel 8 Pro profile
+         */
+        fun getPixel8Pro() = DeviceProfile(
+            manufacturer = "Google",
+            brand = "google",
+            device = "husky",
+            model = "Pixel 8 Pro",
+            board = "husky",
+            product = "husky",
+            buildId = "BP2A.250805.005",
+            fingerprint = "google/husky/husky:15/BP2A.250805.005/12345678:user/release-keys",
+            tags = "release-keys",
+            type = "user",
+            displayName = "Pixel 8 Pro",
+            description = "Pixel 8 Pro with Android 15"
+        )
+
         /**
          * Get all available profiles
          */
         fun getAllProfiles(): List<DeviceProfile> = listOf(
             getPixel10ProXL(),
             getPixel10Pro(),
-            getPixel9ProXL()
+            getPixel10(),
+            getPixel9ProXL(),
+            getPixel9Pro(),
+            getPixel8Pro()
         )
     }
     

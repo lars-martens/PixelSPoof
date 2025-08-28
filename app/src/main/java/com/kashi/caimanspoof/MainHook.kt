@@ -23,6 +23,7 @@ class MainHook : IXposedHookLoadPackage {
     
     companion object {
         private var configManager: ConfigManager? = null
+        private var perAppManager: PerAppConfigManager? = null
         private var stealthManager: StealthManager? = null
         private var isInitialized = false
         
@@ -92,43 +93,57 @@ class MainHook : IXposedHookLoadPackage {
      * Initialize advanced hooking systems for enhanced spoofing
      */
     private fun initializeAdvancedSystems(
-        lpparam: XC_LoadPackage.LoadPackageParam, 
-        isCriticalApp: Boolean, 
+        lpparam: XC_LoadPackage.LoadPackageParam,
+        isCriticalApp: Boolean,
         isBankingApp: Boolean
     ) {
         try {
-            val currentProfile = configManager?.getCurrentProfileSync()
+            // Get effective profile for this package (per-app or global)
+            val currentProfile = perAppManager?.getEffectiveProfile(lpparam.packageName)
+                ?: configManager?.getCurrentProfileSync()
+
             if (currentProfile == null) {
-                StealthManager.stealthLog("No profile selected, using default")
+                StealthManager.stealthLog("No profile available for ${lpparam.packageName}, using default")
                 return
             }
-            
+
+            // Check if spoofing is enabled for this app
+            val appConfig = perAppManager?.getAppConfig(lpparam.packageName)
+            val spoofingEnabled = appConfig?.enabled != false // Default to true if not configured
+
+            if (!spoofingEnabled) {
+                StealthManager.stealthLog("Spoofing disabled for ${lpparam.packageName}, skipping advanced systems")
+                return
+            }
+
+            StealthManager.stealthLog("Using profile '${currentProfile.displayName}' for ${lpparam.packageName}")
+
             // Initialize Pixel-exclusive features for all packages
             PixelExclusiveFeatures.getInstance().initializePixelFeatures(lpparam, currentProfile)
-            
+
             // Initialize advanced attestation bypass for critical apps
             if (isCriticalApp || isBankingApp) {
                 AttestationBypass.getInstance().initializeBypass(lpparam, currentProfile)
                 StealthManager.stealthLog("Advanced attestation bypass initialized")
             }
-            
+
             // Initialize native hooking for all Google services and banking apps
             if (lpparam.packageName.startsWith("com.google") || isBankingApp || isCriticalApp) {
                 NativeHooking.getInstance().initializeNativeHooking(lpparam, currentProfile)
                 StealthManager.stealthLog("Native hooking initialized")
             }
-            
+
             // Initialize behavioral mimicking for system and critical apps
-            if (lpparam.packageName == "android" || 
+            if (lpparam.packageName == "android" ||
                 lpparam.packageName.startsWith("com.google.android.gms") ||
                 lpparam.packageName == "com.android.systemui" ||
                 isCriticalApp) {
-                
+
                 val context = getApplicationContext(lpparam)
                 BehavioralMimicking.getInstance().initializeBehavioralMimicking(lpparam, currentProfile, context)
                 StealthManager.stealthLog("Behavioral mimicking initialized")
             }
-            
+
         } catch (e: Exception) {
             StealthManager.stealthLog("Advanced systems initialization failed: ${e.message}")
         }
@@ -141,24 +156,26 @@ class MainHook : IXposedHookLoadPackage {
         try {
             // Initialize stealth manager first
             stealthManager = StealthManager.getInstance()
-            
+
             // Get application context safely
             val context = getApplicationContext(lpparam)
-            
-            // Initialize configuration manager
+
+            // Initialize configuration managers
             configManager = ConfigManager.getInstance(context)
-            
+            perAppManager = PerAppConfigManager.getInstance(context)
+
             // Initialize stealth with debug mode based on settings
             val stealthMode = configManager?.isStealthModeEnabled() ?: true
             stealthManager?.initializeStealth(lpparam, !stealthMode)
-            
+
             isInitialized = true
             StealthManager.stealthLog("Systems initialized successfully")
-            
+
         } catch (e: Exception) {
             StealthManager.stealthLog("System initialization failed: ${e.message}")
             // Continue with defaults
             configManager = ConfigManager.getInstance(null)
+            perAppManager = PerAppConfigManager.getInstance(null)
             stealthManager = StealthManager.getInstance()
             isInitialized = true
         }
@@ -205,13 +222,25 @@ class MainHook : IXposedHookLoadPackage {
      * Apply device spoofing using current profile - NOW WITH REAL PROPERTY INTERCEPTION!
      */
     private fun applyDeviceSpoofing(lpparam: XC_LoadPackage.LoadPackageParam, isCriticalApp: Boolean) {
-        val profile = configManager?.getCurrentProfileSync() ?: DeviceProfile.getPixel10ProXL()
-        
-        StealthManager.stealthLog("🎯 Applying COMPREHENSIVE spoofing with profile: ${profile.displayName}")
-        
+        // Get effective profile for this package (per-app or global)
+        val profile = perAppManager?.getEffectiveProfile(lpparam.packageName)
+            ?: configManager?.getCurrentProfileSync()
+            ?: DeviceProfile.getPixel10ProXL()
+
+        // Check if spoofing is enabled for this app
+        val appConfig = perAppManager?.getAppConfig(lpparam.packageName)
+        val spoofingEnabled = appConfig?.enabled != false // Default to true if not configured
+
+        if (!spoofingEnabled) {
+            StealthManager.stealthLog("Spoofing disabled for ${lpparam.packageName}, skipping device spoofing")
+            return
+        }
+
+        StealthManager.stealthLog("🎯 Applying COMPREHENSIVE spoofing with profile: ${profile.displayName} for ${lpparam.packageName}")
+
         // Initialize the REAL property spoofer that actually works!
         PropertySpoofer.getInstance().initializePropertySpoofing(lpparam, profile)
-        
+
         StealthManager.stealthLog("✅ COMPREHENSIVE property spoofing activated - Device info apps will now see spoofed data!")
     }
     

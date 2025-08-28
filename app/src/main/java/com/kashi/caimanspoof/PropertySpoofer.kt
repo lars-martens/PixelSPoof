@@ -25,237 +25,13 @@ class PropertySpoofer private constructor() {
         }
     }
     
-    // Complete property map based on your build.prop sample
-    private val PIXEL_PROPERTIES = mutableMapOf<String, String>().apply {
-        // ============ CORE DEVICE IDENTITY ============
-        put("ro.product.brand", "google")
-        put("ro.product.device", "mustang")
-        put("ro.product.manufacturer", "Google")
-        put("ro.product.model", "Pixel 10 Pro XL")
-        put("ro.product.name", "mustang")
-        
-        // ============ BUILD INFORMATION ============
-        put("ro.build.fingerprint", "google/mustang/mustang:16/BP2A.250805.005/13691446:user/release-keys")
-        put("ro.build.id", "BP2A.250805.005")
-        put("ro.build.display.id", "BP2A.250805.005")
-        put("ro.build.product", "mustang")
-        put("ro.build.description", "mustang-user 16 BP2A.250805.005 13691446 release-keys")
-        put("ro.build.version.incremental", "13691446")
-        put("ro.build.version.sdk", "36")
-        put("ro.build.version.release", "16")
-        put("ro.build.version.release_or_codename", "16")
-        put("ro.build.version.security_patch", "2025-08-05")
-        put("ro.build.type", "user")
-        put("ro.build.user", "android-build")
-        put("ro.build.host", "e27561acca81")
-        put("ro.build.tags", "release-keys")
-        put("ro.build.flavor", "mustang-user")
-        
-        // ============ PRODUCT VARIANTS ============
-        put("ro.product.product.brand", "google")
-        put("ro.product.product.device", "mustang")
-        put("ro.product.product.manufacturer", "Google")
-        put("ro.product.product.model", "Pixel 10 Pro XL")
-        put("ro.product.product.name", "mustang")
-        
-        // ============ ATTESTATION PROPERTIES ============
-        put("ro.product.brand_for_attestation", "google")
-        put("ro.product.device_for_attestation", "mustang")
-        put("ro.product.manufacturer_for_attestation", "Google")
-        put("ro.product.model_for_attestation", "Pixel 10 Pro XL")
-        put("ro.product.name_for_attestation", "mustang")
-        
-        // ============ BOOTIMAGE PROPERTIES ============
-        put("ro.product.bootimage.brand", "google")
-        put("ro.product.bootimage.device", "mustang")
-        put("ro.product.bootimage.manufacturer", "Google")
-        put("ro.product.bootimage.model", "Pixel 10 Pro XL")
-        put("ro.product.bootimage.name", "mustang")
-        put("ro.bootimage.build.fingerprint", "google/mustang/mustang:16/BP2A.250805.005/13691446:user/release-keys")
-        put("ro.bootimage.build.id", "BP2A.250805.005")
-        put("ro.bootimage.build.tags", "release-keys")
-        put("ro.bootimage.build.type", "user")
-        put("ro.bootimage.build.version.incremental", "13691446")
-        put("ro.bootimage.build.version.release", "16")
-        put("ro.bootimage.build.version.release_or_codename", "16")
-        put("ro.bootimage.build.version.sdk", "36")
-        
-        // ============ VENDOR PROPERTIES ============
-        put("ro.product.vendor.brand", "google")
-        put("ro.product.vendor.device", "mustang")
-        put("ro.product.vendor.manufacturer", "Google")
-        put("ro.product.vendor.model", "Pixel 10 Pro XL")
-        put("ro.product.vendor.name", "mustang")
-        put("ro.vendor.build.fingerprint", "google/mustang/mustang:16/BP2A.250805.005/13691446:user/release-keys")
-        put("ro.vendor.build.id", "BP2A.250805.005")
-        put("ro.vendor.build.tags", "release-keys")
-        put("ro.vendor.build.type", "user")
-        put("ro.vendor.build.version.incremental", "13691446")
-        put("ro.vendor.build.version.release", "16")
-        put("ro.vendor.build.version.release_or_codename", "16")
-        put("ro.vendor.build.version.sdk", "36")
-        put("ro.vendor.build.security_patch", "2025-08-05")
-        
-        // ============ SYSTEM PROPERTIES ============
-        put("ro.product.system.brand", "google")
-        put("ro.product.system.device", "generic")
-        put("ro.product.system.manufacturer", "Google")
-        put("ro.product.system.model", "mainline")
-        put("ro.product.system.name", "mainline")
-        put("ro.system.build.fingerprint", "google/mustang/mustang:16/BP2A.250805.005/13691446:user/release-keys")
-        put("ro.system.build.id", "BP2A.250805.005")
-        put("ro.system.build.tags", "release-keys")
-        put("ro.system.build.type", "user")
-        put("ro.system.build.version.incremental", "13691446")
-        put("ro.system.build.version.release", "16")
-        put("ro.system.build.version.release_or_codename", "16")
-        put("ro.system.build.version.sdk", "36")
-        
-        // ============ SYSTEM_EXT PROPERTIES ============
-        put("ro.product.system_ext.brand", "google")
-        put("ro.product.system_ext.device", "mustang")
-        put("ro.product.system_ext.manufacturer", "Google")
-        put("ro.product.system_ext.model", "Pixel 10 Pro XL")
-        put("ro.product.system_ext.name", "mustang")
-        put("ro.system_ext.build.fingerprint", "google/mustang/mustang:16/BP2A.250805.005/13691446:user/release-keys")
-        put("ro.system_ext.build.id", "BP2A.250805.005")
-        put("ro.system_ext.build.tags", "release-keys")
-        put("ro.system_ext.build.type", "user")
-        put("ro.system_ext.build.version.incremental", "13691446")
-        put("ro.system_ext.build.version.release", "16")
-        put("ro.system_ext.build.version.release_or_codename", "16")
-        put("ro.system_ext.build.version.sdk", "36")
-        
-        // ============ ODM PROPERTIES ============
-        put("ro.product.odm.brand", "google")
-        put("ro.product.odm.device", "mustang")
-        put("ro.product.odm.manufacturer", "Google")
-        put("ro.product.odm.model", "Pixel 10 Pro XL")
-        put("ro.product.odm.name", "mustang")
-        put("ro.odm.build.fingerprint", "google/mustang/mustang:16/BP2A.250805.005/13691446:user/release-keys")
-        put("ro.odm.build.id", "BP2A.250805.005")
-        put("ro.odm.build.tags", "release-keys")
-        put("ro.odm.build.type", "user")
-        put("ro.odm.build.version.incremental", "13691446")
-        put("ro.odm.build.version.release", "16")
-        put("ro.odm.build.version.release_or_codename", "16")
-        put("ro.odm.build.version.sdk", "36")
-        
-        // ============ VENDOR_DLKM PROPERTIES ============
-        put("ro.product.vendor_dlkm.brand", "google")
-        put("ro.product.vendor_dlkm.device", "mustang")
-        put("ro.product.vendor_dlkm.manufacturer", "Google")
-        put("ro.product.vendor_dlkm.model", "Pixel 10 Pro XL")
-        put("ro.product.vendor_dlkm.name", "mustang")
-        put("ro.vendor_dlkm.build.fingerprint", "google/mustang/mustang:16/BP2A.250805.005/13691446:user/release-keys")
-        put("ro.vendor_dlkm.build.id", "BP2A.250805.005")
-        put("ro.vendor_dlkm.build.tags", "release-keys")
-        put("ro.vendor_dlkm.build.type", "user")
-        put("ro.vendor_dlkm.build.version.incremental", "13691446")
-        put("ro.vendor_dlkm.build.version.release", "16")
-        put("ro.vendor_dlkm.build.version.release_or_codename", "16")
-        put("ro.vendor_dlkm.build.version.sdk", "36")
-        
-        // ============ SYSTEM_DLKM PROPERTIES ============
-        put("ro.product.system_dlkm.brand", "google")
-        put("ro.product.system_dlkm.device", "mustang")
-        put("ro.product.system_dlkm.manufacturer", "Google")
-        put("ro.product.system_dlkm.model", "Pixel 10 Pro XL")
-        put("ro.product.system_dlkm.name", "mustang")
-        put("ro.system_dlkm.build.fingerprint", "google/mustang/mustang:16/BP2A.250805.005/13691446:user/release-keys")
-        put("ro.system_dlkm.build.id", "BP2A.250805.005")
-        put("ro.system_dlkm.build.tags", "release-keys")
-        put("ro.system_dlkm.build.type", "user")
-        put("ro.system_dlkm.build.version.incremental", "13691446")
-        put("ro.system_dlkm.build.version.release", "16")
-        put("ro.system_dlkm.build.version.release_or_codename", "16")
-        put("ro.system_dlkm.build.version.sdk", "36")
-        
-        // ============ ODM_DLKM PROPERTIES ============
-        put("ro.product.odm_dlkm.brand", "google")
-        put("ro.product.odm_dlkm.device", "mustang")
-        put("ro.product.odm_dlkm.manufacturer", "Google")
-        put("ro.product.odm_dlkm.model", "Pixel 10 Pro XL")
-        put("ro.product.odm_dlkm.name", "mustang")
-        put("ro.odm_dlkm.build.fingerprint", "google/mustang/mustang:16/BP2A.250805.005/13691446:user/release-keys")
-        put("ro.odm_dlkm.build.id", "BP2A.250805.005")
-        put("ro.odm_dlkm.build.tags", "release-keys")
-        put("ro.odm_dlkm.build.type", "user")
-        put("ro.odm_dlkm.build.version.incremental", "13691446")
-        put("ro.odm_dlkm.build.version.release", "16")
-        put("ro.odm_dlkm.build.version.release_or_codename", "16")
-        put("ro.odm_dlkm.build.version.sdk", "36")
-        
-        // ============ HARDWARE & GOOGLE SPECIFIC ============
-        put("ro.soc.model", "Tensor G4")
-        put("ro.soc.manufacturer", "Google")
-        put("ro.product.first_api_level", "34")
-        put("ro.boot.hwname", "mustang")
-        put("ro.boot.hwdevice", "mustang")
-        put("ro.product.hardware.sku", "mustang")
-        put("ro.boot.product.hardware.sku", "mustang")
-        put("ro.build.device_family", "CM4KM4TK4TG4")
-        put("vendor.usb.product_string", "Pixel 10 Pro XL")
-        
-        // ============ GOOGLE SERVICES ============
-        put("ro.opa.eligible_device", "true")
-        put("ro.com.google.clientidbase", "android-google")
-        put("ro.com.google.ime.theme_id", "5")
-        put("ro.com.google.ime.system_lm_dir", "/product/usr/share/ime/google/d3_lms")
-        put("ro.support_one_handed_mode", "true")
-        put("ro.quick_start.oem_id", "00e0")
-        put("ro.quick_start.device_id", "mustang")
-        put("ro.hotword.detection_service_required", "false")
-        
-        // ============ SECURITY & KEYS ============
-        put("keyguard.no_require_sim", "true")
-        put("ro.hardware.keystore_desede", "true")
-        put("ro.hardware.keystore", "trusty")
-        put("ro.hardware.gatekeeper", "trusty")
-        
-        // ============ DISPLAY & THERMAL ============
-        put("debug.sf.enable_sdr_dimming", "1")
-        put("debug.sf.dim_in_gamma_in_enhanced_screenshots", "1")
-        put("persist.vendor.enable.thermal.genl", "true")
-        put("ro.incremental.enable", "true")
-        
-        // ============ COMMONLY QUERIED BY DEVICE INFO APPS ============
-        put("ro.board.platform", "gs101")
-        put("ro.hardware", "mustang")
-        put("ro.hwui.texture_cache_size", "72")
-        put("ro.opengles.version", "196610")
-        put("ro.vendor.api_level", "36")
-        put("ro.vndk.version", "36")
-        put("ro.kernel.android.checkjni", "0")
-        put("ro.dalvik.vm.native.bridge", "0")
-        put("ro.adb.secure", "1")
-        put("ro.allow.mock.location", "0")
-        put("ro.debuggable", "0")
-        put("ro.secure", "1")
-        put("service.adb.root", "0")
-        put("sys.usb.state", "none")
-        
-        // ============ ADDITIONAL HARDWARE INFO ============
-        put("ro.product.cpu.abi", "arm64-v8a")
-        put("ro.product.cpu.abilist", "arm64-v8a,armeabi-v7a,armeabi")
-        put("ro.product.cpu.abilist32", "armeabi-v7a,armeabi")
-        put("ro.product.cpu.abilist64", "arm64-v8a")
-        put("ro.product.locale", "en-US")
-        put("ro.wifi.channels", "")
-        put("ro.product.board", "mustang")
-        
-        // ============ VERSION CODENAMES ============
-        put("ro.build.version.codename", "REL")
-        put("ro.build.version.all_codenames", "REL")
-        put("ro.build.version.preview_sdk", "0")
-        put("ro.build.version.preview_sdk_fingerprint", "REL")
-        put("ro.build.expect.baseband", "")
-        put("ro.build.expect.bootloader", "mustang-16.0-1234567")
-        
-        // ============ SERIAL AND UNIQUE IDS ============ 
-        put("ro.serialno", "HT7A1TESTDEVICE") 
-        put("ro.boot.serialno", "HT7A1TESTDEVICE")
-        put("ril.serial_number", "HT7A1TESTDEVICE")
+    // Complete property map - will be populated dynamically
+    private val PIXEL_PROPERTIES = mutableMapOf<String, String>()
+
+    init {
+        // Initialize with default Pixel 10 Pro XL profile
+        val defaultProfile = DeviceProfile.getPixel10ProXL()
+        buildPropertiesForProfile(defaultProfile)
     }
     
     /**
@@ -263,66 +39,210 @@ class PropertySpoofer private constructor() {
      */
     fun initializePropertySpoofing(lpparam: XC_LoadPackage.LoadPackageParam, profile: DeviceProfile) {
         StealthManager.stealthLog("🔧 Initializing COMPREHENSIVE property spoofing")
-        
+
         try {
-            // Update properties from profile
-            updatePropertiesFromProfile(profile)
-            
+            // Build properties from profile
+            refreshPropertiesForProfile(profile)
+
             // Hook ALL the ways apps can read properties
             hookSystemProperties(lpparam)
             hookBuildClass(lpparam)
             hookSettingsSecure(lpparam)
             hookTelephonyManager(lpparam)
             hookPackageManager(lpparam)
-            
+
             StealthManager.stealthLog("✅ Comprehensive property spoofing activated - ALL access methods hooked!")
-            
+
         } catch (e: Exception) {
             StealthManager.stealthLog("❌ Property spoofing failed: ${e.message}")
         }
     }
     
     /**
-     * Update properties from device profile
+     * Refresh properties with new profile (for dynamic profile switching)
      */
-    private fun updatePropertiesFromProfile(profile: DeviceProfile) {
-        // Update all properties with profile data
-        PIXEL_PROPERTIES["ro.product.brand"] = "google"
-        PIXEL_PROPERTIES["ro.product.manufacturer"] = "Google"
-        PIXEL_PROPERTIES["ro.product.model"] = profile.model
-        PIXEL_PROPERTIES["ro.product.device"] = profile.device
-        PIXEL_PROPERTIES["ro.product.name"] = profile.device
+    fun refreshPropertiesForProfile(profile: DeviceProfile) {
+        ErrorHandler.safeExecute("Refresh properties for profile", "PropertySpoofer") {
+            // Clear existing properties and rebuild from scratch
+            PIXEL_PROPERTIES.clear()
+            buildPropertiesForProfile(profile)
+            StealthManager.stealthLog("🔄 Completely rebuilt properties for profile: ${profile.displayName}")
+        }
+    }
+
+    /**
+     * Build all properties for a specific profile
+     */
+    private fun buildPropertiesForProfile(profile: DeviceProfile) {
+        // Parse Android version from fingerprint
+        val androidVersion = parseAndroidVersionFromFingerprint(profile.fingerprint)
+        val sdkVersion = getSdkFromAndroidVersion(androidVersion)
+
+        // ============ BASIC BUILD PROPERTIES ============
+        PIXEL_PROPERTIES["ro.build.host"] = "e27561acca81"
+        PIXEL_PROPERTIES["ro.build.tags"] = "release-keys"
+        PIXEL_PROPERTIES["ro.build.flavor"] = "${profile.device}-user"
         PIXEL_PROPERTIES["ro.build.fingerprint"] = profile.fingerprint
         PIXEL_PROPERTIES["ro.build.id"] = profile.buildId
         PIXEL_PROPERTIES["ro.build.display.id"] = profile.buildId
-        PIXEL_PROPERTIES["ro.build.version.release"] = "16" // Android 16
-        PIXEL_PROPERTIES["ro.build.version.sdk"] = "36" // SDK 36
+        PIXEL_PROPERTIES["ro.build.version.release"] = androidVersion
+        PIXEL_PROPERTIES["ro.build.version.sdk"] = sdkVersion
         PIXEL_PROPERTIES["ro.build.version.security_patch"] = profile.securityPatch
-        
-        // Update ALL variants with the same data
-        val brandProps = PIXEL_PROPERTIES.keys.filter { it.contains("brand") }
-        val manufacturerProps = PIXEL_PROPERTIES.keys.filter { it.contains("manufacturer") }
-        val modelProps = PIXEL_PROPERTIES.keys.filter { it.contains("model") }
-        val deviceProps = PIXEL_PROPERTIES.keys.filter { it.contains("device") && !it.contains("_for_") }
-        val nameProps = PIXEL_PROPERTIES.keys.filter { it.contains("name") && !it.contains("hwname") }
-        val fingerprintProps = PIXEL_PROPERTIES.keys.filter { it.contains("fingerprint") }
-        val buildIdProps = PIXEL_PROPERTIES.keys.filter { it.contains("build.id") }
-        val releaseProps = PIXEL_PROPERTIES.keys.filter { it.contains("version.release") }
-        val sdkProps = PIXEL_PROPERTIES.keys.filter { it.contains("version.sdk") }
-        val securityProps = PIXEL_PROPERTIES.keys.filter { it.contains("security_patch") }
-        
-        brandProps.forEach { PIXEL_PROPERTIES[it] = "google" }
-        manufacturerProps.forEach { PIXEL_PROPERTIES[it] = "Google" }
-        modelProps.forEach { PIXEL_PROPERTIES[it] = profile.model }
-        deviceProps.forEach { PIXEL_PROPERTIES[it] = profile.device }
-        nameProps.forEach { PIXEL_PROPERTIES[it] = profile.device }
-        fingerprintProps.forEach { PIXEL_PROPERTIES[it] = profile.fingerprint }
-        buildIdProps.forEach { PIXEL_PROPERTIES[it] = profile.buildId }
-        releaseProps.forEach { PIXEL_PROPERTIES[it] = "16" }
-        sdkProps.forEach { PIXEL_PROPERTIES[it] = "36" }
-        securityProps.forEach { PIXEL_PROPERTIES[it] = profile.securityPatch }
-        
-        StealthManager.stealthLog("📋 Updated ${PIXEL_PROPERTIES.size} properties from profile")
+        PIXEL_PROPERTIES["ro.build.type"] = "user"
+        PIXEL_PROPERTIES["ro.build.user"] = "android-build"
+
+        // ============ CORE PRODUCT PROPERTIES ============
+        PIXEL_PROPERTIES["ro.product.brand"] = profile.brand
+        PIXEL_PROPERTIES["ro.product.manufacturer"] = profile.manufacturer
+        PIXEL_PROPERTIES["ro.product.model"] = profile.model
+        PIXEL_PROPERTIES["ro.product.device"] = profile.device
+        PIXEL_PROPERTIES["ro.product.name"] = profile.device
+        PIXEL_PROPERTIES["ro.product.board"] = profile.board
+
+        // ============ PRODUCT VARIANTS ============
+        PIXEL_PROPERTIES["ro.product.product.brand"] = profile.brand
+        PIXEL_PROPERTIES["ro.product.product.device"] = profile.device
+        PIXEL_PROPERTIES["ro.product.product.manufacturer"] = profile.manufacturer
+        PIXEL_PROPERTIES["ro.product.product.model"] = profile.model
+        PIXEL_PROPERTIES["ro.product.product.name"] = profile.device
+
+        // ============ ATTESTATION PROPERTIES ============
+        PIXEL_PROPERTIES["ro.product.brand_for_attestation"] = profile.brand
+        PIXEL_PROPERTIES["ro.product.device_for_attestation"] = profile.device
+        PIXEL_PROPERTIES["ro.product.manufacturer_for_attestation"] = profile.manufacturer
+        PIXEL_PROPERTIES["ro.product.model_for_attestation"] = profile.model
+        PIXEL_PROPERTIES["ro.product.name_for_attestation"] = profile.device
+
+        // ============ BOOTIMAGE PROPERTIES ============
+        PIXEL_PROPERTIES["ro.product.bootimage.brand"] = profile.brand
+        PIXEL_PROPERTIES["ro.product.bootimage.device"] = profile.device
+        PIXEL_PROPERTIES["ro.product.bootimage.manufacturer"] = profile.manufacturer
+        PIXEL_PROPERTIES["ro.product.bootimage.model"] = profile.model
+        PIXEL_PROPERTIES["ro.product.bootimage.name"] = profile.device
+        PIXEL_PROPERTIES["ro.bootimage.build.fingerprint"] = profile.fingerprint
+        PIXEL_PROPERTIES["ro.bootimage.build.id"] = profile.buildId
+        PIXEL_PROPERTIES["ro.bootimage.build.tags"] = "release-keys"
+        PIXEL_PROPERTIES["ro.bootimage.build.type"] = "user"
+        PIXEL_PROPERTIES["ro.bootimage.build.version.incremental"] = profile.buildId.split(".")[2]
+        PIXEL_PROPERTIES["ro.bootimage.build.version.release"] = androidVersion
+        PIXEL_PROPERTIES["ro.bootimage.build.version.release_or_codename"] = androidVersion
+        PIXEL_PROPERTIES["ro.bootimage.build.version.sdk"] = sdkVersion
+
+        // ============ VENDOR PROPERTIES ============
+        PIXEL_PROPERTIES["ro.product.vendor.brand"] = profile.brand
+        PIXEL_PROPERTIES["ro.product.vendor.device"] = profile.device
+        PIXEL_PROPERTIES["ro.product.vendor.manufacturer"] = profile.manufacturer
+        PIXEL_PROPERTIES["ro.product.vendor.model"] = profile.model
+        PIXEL_PROPERTIES["ro.product.vendor.name"] = profile.device
+        PIXEL_PROPERTIES["ro.vendor.build.fingerprint"] = profile.fingerprint
+        PIXEL_PROPERTIES["ro.vendor.build.id"] = profile.buildId
+        PIXEL_PROPERTIES["ro.vendor.build.tags"] = "release-keys"
+        PIXEL_PROPERTIES["ro.vendor.build.type"] = "user"
+        PIXEL_PROPERTIES["ro.vendor.build.version.incremental"] = profile.buildId.split(".")[2]
+        PIXEL_PROPERTIES["ro.vendor.build.version.release"] = androidVersion
+        PIXEL_PROPERTIES["ro.vendor.build.version.release_or_codename"] = androidVersion
+        PIXEL_PROPERTIES["ro.vendor.build.version.sdk"] = sdkVersion
+        PIXEL_PROPERTIES["ro.vendor.build.security_patch"] = profile.securityPatch
+
+        // ============ SYSTEM PROPERTIES ============
+        PIXEL_PROPERTIES["ro.product.system.brand"] = profile.brand
+        PIXEL_PROPERTIES["ro.product.system.device"] = "generic"
+        PIXEL_PROPERTIES["ro.product.system.manufacturer"] = profile.manufacturer
+        PIXEL_PROPERTIES["ro.product.system.model"] = "mainline"
+        PIXEL_PROPERTIES["ro.product.system.name"] = "mainline"
+        PIXEL_PROPERTIES["ro.system.build.fingerprint"] = profile.fingerprint
+        PIXEL_PROPERTIES["ro.system.build.id"] = profile.buildId
+        PIXEL_PROPERTIES["ro.system.build.tags"] = "release-keys"
+        PIXEL_PROPERTIES["ro.system.build.type"] = "user"
+        PIXEL_PROPERTIES["ro.system.build.version.incremental"] = profile.buildId.split(".")[2]
+        PIXEL_PROPERTIES["ro.system.build.version.release"] = androidVersion
+        PIXEL_PROPERTIES["ro.system.build.version.release_or_codename"] = androidVersion
+        PIXEL_PROPERTIES["ro.system.build.version.sdk"] = sdkVersion
+
+        // ============ HARDWARE & PROCESSOR INFO ============
+        PIXEL_PROPERTIES["ro.soc.model"] = profile.socModel
+        PIXEL_PROPERTIES["ro.soc.manufacturer"] = profile.socManufacturer
+        PIXEL_PROPERTIES["ro.board.platform"] = profile.hardwarePlatform
+        PIXEL_PROPERTIES["ro.hardware"] = profile.device
+        PIXEL_PROPERTIES["ro.hardware.chipname"] = profile.socModel
+        PIXEL_PROPERTIES["ro.product.cpu.abi"] = profile.cpuAbi
+        PIXEL_PROPERTIES["ro.product.cpu.abilist"] = profile.cpuAbiList
+        PIXEL_PROPERTIES["ro.product.cpu.abilist32"] = "armeabi-v7a,armeabi"
+        PIXEL_PROPERTIES["ro.product.cpu.abilist64"] = profile.cpuAbi
+        PIXEL_PROPERTIES["ro.processor.model"] = profile.processorModel
+        PIXEL_PROPERTIES["ro.processor.manufacturer"] = profile.socManufacturer
+        PIXEL_PROPERTIES["ro.gpu.model"] = profile.gpuModel
+        PIXEL_PROPERTIES["ro.gpu.manufacturer"] = "ARM"
+        PIXEL_PROPERTIES["ro.display.density"] = profile.displayDensity
+        PIXEL_PROPERTIES["ro.display.size"] = profile.displaySize
+        PIXEL_PROPERTIES["ro.build.hardware.sku"] = profile.device
+        PIXEL_PROPERTIES["ro.product.hardware.sku"] = profile.device
+        PIXEL_PROPERTIES["ro.boot.hardware.sku"] = profile.device
+        PIXEL_PROPERTIES["ro.product.hardware.platform"] = profile.hardwarePlatform
+        PIXEL_PROPERTIES["ro.hardware.platform"] = profile.hardwarePlatform
+        PIXEL_PROPERTIES["ro.arch"] = "arm64"
+        PIXEL_PROPERTIES["ro.cpu.architecture"] = "arm64"
+
+        // ============ CPU DETAILS ============
+        PIXEL_PROPERTIES["ro.cpu.model"] = profile.processorModel
+        PIXEL_PROPERTIES["ro.cpu.vendor"] = profile.socManufacturer
+        PIXEL_PROPERTIES["ro.cpu.cores"] = "8"
+
+        // ============ GPU DETAILS ============
+        PIXEL_PROPERTIES["ro.gpu.vendor"] = "ARM"
+        PIXEL_PROPERTIES["ro.gpu.cores"] = "24"
+
+        // ============ GOOGLE SERVICES ============
+        PIXEL_PROPERTIES["ro.opa.eligible_device"] = "true"
+        PIXEL_PROPERTIES["ro.com.google.clientidbase"] = "android-google"
+        PIXEL_PROPERTIES["ro.quick_start.device_id"] = profile.device
+
+        // ============ COMMONLY QUERIED PROPERTIES ============
+        PIXEL_PROPERTIES["ro.chipname"] = profile.socModel
+        PIXEL_PROPERTIES["ro.hardware.chipset"] = profile.socModel
+        PIXEL_PROPERTIES["ro.soc.vendor"] = profile.socManufacturer
+        PIXEL_PROPERTIES["ro.vendor.name"] = profile.brand
+        PIXEL_PROPERTIES["ro.vendor.product.name"] = profile.device
+        PIXEL_PROPERTIES["ro.vendor.product.device"] = profile.device
+        PIXEL_PROPERTIES["ro.vendor.product.model"] = profile.model
+
+        // ============ VERSION CODENAMES ============
+        PIXEL_PROPERTIES["ro.build.version.codename"] = "REL"
+        PIXEL_PROPERTIES["ro.build.version.all_codenames"] = "REL"
+        PIXEL_PROPERTIES["ro.build.version.preview_sdk"] = "0"
+        PIXEL_PROPERTIES["ro.build.version.preview_sdk_fingerprint"] = "REL"
+
+        // ============ SERIAL AND UNIQUE IDS ============
+        PIXEL_PROPERTIES["ro.serialno"] = "HT7A1TESTDEVICE"
+        PIXEL_PROPERTIES["ro.boot.serialno"] = "HT7A1TESTDEVICE"
+        PIXEL_PROPERTIES["ril.serial_number"] = "HT7A1TESTDEVICE"
+
+        StealthManager.stealthLog("📋 Built ${PIXEL_PROPERTIES.size} properties for profile: ${profile.displayName}")
+    }
+
+    /**
+     * Parse Android version from fingerprint
+     */
+    private fun parseAndroidVersionFromFingerprint(fingerprint: String): String {
+        return try {
+            // Fingerprint format: brand/product/device:version/release/build_id:build_type/tags
+            val versionPart = fingerprint.split(":")[1] // Gets "version/release/build_id"
+            versionPart.split("/")[0] // Gets just the version number
+        } catch (e: Exception) {
+            "16" // Default fallback
+        }
+    }
+
+    /**
+     * Get SDK version from Android version
+     */
+    private fun getSdkFromAndroidVersion(androidVersion: String): String {
+        return when (androidVersion) {
+            "15" -> "35"
+            "16" -> "36"
+            "17" -> "37"
+            else -> "36" // Default to latest
+        }
     }
     
     /**
@@ -341,12 +261,16 @@ class PropertySpoofer private constructor() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         val key = param.args[0] as String
                         val spoofedValue = PIXEL_PROPERTIES[key]
-                        
+
+                        // Metric: record property request
+                        Metrics.getInstance().incrementPropertyRequest()
+
                         // Log ALL property requests to see what's being queried
                         StealthManager.stealthLog("📝 Property requested: $key")
-                        
+
                         if (spoofedValue != null) {
                             param.result = spoofedValue
+                            Metrics.getInstance().incrementPropertySpoofed()
                             StealthManager.stealthLog("🎯 SPOOFED: $key = $spoofedValue")
                         } else {
                             StealthManager.stealthLog("⚠️ NOT SPOOFED: $key (not in our list)")
@@ -381,6 +305,8 @@ class PropertySpoofer private constructor() {
             )
             
             StealthManager.stealthLog("✅ SystemProperties hooks installed")
+            // Mark that SystemProperties hooks are active for diagnostics
+            Metrics.getInstance().setSystemPropertiesHookInstalled(true)
             
         } catch (e: Exception) {
             StealthManager.stealthLog("❌ SystemProperties hook failed: ${e.message}")

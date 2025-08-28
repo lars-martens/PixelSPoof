@@ -27,6 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.ViewModelProvider
+import com.kashi.caimanspoof.ui.PerAppConfigScreen
+import com.kashi.caimanspoof.ui.DiagnosticsScreen
 import kotlinx.coroutines.launch
 
 /**
@@ -51,7 +53,7 @@ class ConfigActivity : ComponentActivity() {
 }
 
 /**
- * Main configuration screen
+ * Main configuration screen with tabs
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,14 +62,18 @@ fun ConfigScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    
+
     val availableProfiles by viewModel.availableProfiles.collectAsState()
     val selectedProfile by viewModel.selectedProfile.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val lastError by viewModel.lastError.collectAsState()
-    
+
     val snackbarHostState = remember { SnackbarHostState() }
-    
+
+    // Tab state
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf("Global Config", "Per-App Config", "Diagnostics")
+
     LaunchedEffect(lastError) {
         lastError?.let { error ->
             snackbarHostState.showSnackbar(
@@ -76,11 +82,11 @@ fun ConfigScreen(
             )
         }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         "PixelSpoof Configuration",
                         fontWeight = FontWeight.Bold
@@ -95,71 +101,130 @@ fun ConfigScreen(
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
-        
-        LazyColumn(
+
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            
-            // Current Profile Section
-            item {
-                CurrentProfileCard(
-                    profile = selectedProfile,
-                    isLoading = isLoading
+            // Tab row
+            TabRow(selectedTabIndex = selectedTabIndex) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        text = { Text(title) }
+                    )
+                }
+            }
+
+            // Tab content
+            when (selectedTabIndex) {
+                0 -> GlobalConfigTab(
+                    viewModel = viewModel,
+                    availableProfiles = availableProfiles,
+                    selectedProfile = selectedProfile,
+                    isLoading = isLoading,
+                    scope = scope,
+                    snackbarHostState = snackbarHostState
                 )
-            }
-            
-            // Profile Selection Section
-            item {
-                Text(
-                    text = "Select Device Profile:",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-            
-            items(availableProfiles) { profile ->
-                ProfileSelectionCard(
-                    profile = profile,
-                    isSelected = profile.displayName == selectedProfile?.displayName,
-                    onSelect = { 
-                        scope.launch {
-                            viewModel.selectProfile(profile.displayName)
-                            snackbarHostState.showSnackbar(
-                                "Profile set to ${profile.displayName}. Reboot required to apply changes.",
-                                duration = SnackbarDuration.Long
-                            )
-                        }
-                    }
-                )
-            }
-            
-            // Actions Section
-            item {
-                ActionsSection(
-                    onRefresh = { 
-                        scope.launch {
-                            viewModel.refreshProfiles()
-                        }
-                    },
-                    isLoading = isLoading
-                )
-            }
-            
-            // Settings Section
-            item {
-                SettingsSection(viewModel = viewModel)
-            }
-            
-            // About Section
-            item {
-                AboutCard()
+                1 -> PerAppConfigTab()
+                2 -> DiagnosticsTab()
             }
         }
     }
+}
+
+/**
+ * Global configuration tab
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GlobalConfigTab(
+    viewModel: ConfigViewModel,
+    availableProfiles: List<DeviceProfile>,
+    selectedProfile: DeviceProfile?,
+    isLoading: Boolean,
+    scope: kotlinx.coroutines.CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Current Profile Section
+        item {
+            CurrentProfileCard(
+                profile = selectedProfile,
+                isLoading = isLoading
+            )
+        }
+
+        // Profile Selection Section
+        item {
+            Text(
+                text = "Select Device Profile:",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        items(availableProfiles) { profile ->
+            ProfileSelectionCard(
+                profile = profile,
+                isSelected = profile.displayName == selectedProfile?.displayName,
+                onSelect = {
+                    scope.launch {
+                        viewModel.selectProfile(profile.displayName)
+                        snackbarHostState.showSnackbar(
+                            "Profile set to ${profile.displayName}. Reboot required to apply changes.",
+                            duration = SnackbarDuration.Long
+                        )
+                    }
+                }
+            )
+        }
+
+        // Actions Section
+        item {
+            ActionsSection(
+                onRefresh = {
+                    scope.launch {
+                        viewModel.refreshProfiles()
+                    }
+                },
+                isLoading = isLoading
+            )
+        }
+
+        // Settings Section
+        item {
+            SettingsSection(viewModel = viewModel)
+        }
+
+        // About Section
+        item {
+            AboutCard()
+        }
+    }
+}
+
+/**
+ * Per-app configuration tab
+ */
+@Composable
+fun PerAppConfigTab() {
+    PerAppConfigScreen(onBack = { /* No-op for tab */ })
+}
+
+/**
+ * Diagnostics tab
+ */
+@Composable
+fun DiagnosticsTab() {
+    DiagnosticsScreen(onBack = { /* No-op for tab */ })
 }
 
 /**

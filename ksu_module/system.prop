@@ -1,0 +1,115 @@
+# Pixel 10 Pro XL System Properties - MUSTANG with Tensor G5
+# Core device identification
+ro.product.manufacturer=Google
+ro.product.brand=google
+ro.product.name=mustang
+ro.product.device=mustang
+ro.product.model=Pixel 10 Pro XL
+
+# Build properties - Android 16 BP2A.250805.005
+ro.build.product=mustang
+ro.build.device=mustang
+ro.build.fingerprint=google/mustang/mustang:16/BP2A.250805.005/13691446:user/release-keys
+ro.build.id=BP2A.250805.005
+ro.build.display.id=BP2A.250805.005
+ro.build.version.release=16
+ro.build.version.sdk=36
+ro.build.version.incremental=13691446
+ro.build.version.security_patch=2025-08-05
+ro.build.tags=release-keys
+ro.build.type=user
+ro.build.host=e27561acca81
+ro.build.user=android-build
+ro.build.flavor=mustang-user
+
+# Hardware properties - Tensor G5
+ro.hardware=mustang
+ro.board.platform=gs102
+ro.hardware.chipname=Tensor G5
+ro.soc.manufacturer=Google
+ro.soc.model=Tensor G5
+ro.hardware.platform=gs102
+ro.product.board=mustang
+
+# CPU Architecture
+ro.product.cpu.abi=arm64-v8a
+ro.product.cpu.abilist=arm64-v8a,armeabi-v7a,armeabi
+ro.product.cpu.abilist32=armeabi-v7a,armeabi
+ro.product.cpu.abilist64=arm64-v8a
+ro.arch=arm64
+ro.cpu.architecture=arm64
+
+# Processor details
+ro.processor.model=Google Tensor G5
+ro.processor.manufacturer=Google
+ro.cpu.model=Google Tensor G5
+ro.cpu.vendor=Google
+ro.cpu.cores=8
+
+# GPU details
+ro.gpu.model=Mali-G78 MP24
+ro.gpu.manufacturer=ARM
+ro.gpu.vendor=ARM
+ro.gpu.cores=24
+
+# Display properties
+ro.display.density=560
+ro.display.size=6.8
+
+# Bootloader
+ro.bootloader=mustang-16.0-13691446
+ro.boot.hardware=mustang
+ro.boot.hardware.platform=gs102
+ro.boot.hardware.sku=mustang
+
+# Hardware SKUs
+ro.build.hardware.sku=mustang
+ro.product.hardware.sku=mustang
+ro.product.hardware.platform=gs102
+
+# Pixel features and services
+ro.opa.eligible_device=true
+ro.com.google.clientidbase=android-google
+ro.com.google.ime.kb_pad_port_b=1
+ro.storage_manager.enabled=true
+ro.atrace.core.services=com.google.android.gms,com.google.android.gms.ui,com.google.android.gms.persistent
+
+# AICore properties
+ro.config.aicore_enabled=true
+persist.vendor.aicore.enabled=1
+ro.vendor.aicore.version=16.0
+ro.system.aicore.enabled=true
+ro.config.ai_core_available=true
+
+# Additional Pixel features
+ro.vendor.audio.sdk.fluencetype=fluence
+ro.config.face_unlock_service=true
+ro.com.google.lens.oem=true
+ro.support_one_handed_mode=true
+ro.quick_start.device_id=mustang
+ro.hotword.detection_service_required=false
+
+# Security and keystore
+ro.hardware.keystore_desede=true
+ro.hardware.keystore=trusty
+ro.hardware.gatekeeper=trusty
+
+# Serial numbers
+ro.serialno=HT7A1TESTDEVICE
+ro.boot.serialno=HT7A1TESTDEVICE
+ril.serial_number=HT7A1TESTDEVICE
+
+# Additional commonly queried properties
+ro.chipname=Tensor G5
+ro.hardware.chipset=Tensor G5
+ro.soc.vendor=Google
+ro.vendor.name=google
+ro.vendor.product.name=mustang
+ro.vendor.product.device=mustang
+ro.vendor.product.model=Pixel 10 Pro XL
+
+# Version codenames
+ro.build.version.codename=REL
+ro.build.version.all_codenames=REL
+ro.build.version.preview_sdk=0
+ro.build.version.preview_sdk_fingerprint=REL

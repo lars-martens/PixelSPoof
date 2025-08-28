@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.io.File
 import java.lang.reflect.Method
+import java.util.concurrent.TimeUnit
 
 /**
  * KernelSU Integration and Detection Layer
@@ -300,8 +301,7 @@ class KernelSUIntegration private constructor() {
     private fun checkKernelSUActive(): Boolean {
         return try {
             // Try to communicate with KernelSU
-            val process = Runtime.getRuntime().exec("su -c 'echo test'")
-            val exitCode = process.waitFor()
+            val exitCode = executeCommand("echo test", 5, useSu = true)
             exitCode == 0
         } catch (e: Exception) {
             false
@@ -552,16 +552,11 @@ class KernelSUIntegration private constructor() {
             Log.d(TAG, "🔧 Applying safe command: ${command.command}")
             
             // Execute with timeout and error handling
-            val process = Runtime.getRuntime().exec("su -c '${command.command}'")
-            val completed = process.waitFor(5, java.util.concurrent.TimeUnit.SECONDS)
-            
-            if (!completed) {
-                Log.e(TAG, "❌ Command timeout: ${command.command}")
-                process.destroyForcibly()
+            val exitCode = executeCommand(command.command, 5, useSu = true)
+            if (exitCode == -1) {
+                Log.w(TAG, "⚠️ KernelSU not active; skipping command in non-KernelSU environment: ${command.command}")
                 return false
             }
-            
-            val exitCode = process.exitValue()
             if (exitCode != 0) {
                 Log.e(TAG, "❌ Command failed with exit code $exitCode: ${command.command}")
                 return false
@@ -611,7 +606,10 @@ class KernelSUIntegration private constructor() {
             // Restore original property values
             for ((property, value) in restorePoint) {
                 val command = "setprop $property '$value'"
-                Runtime.getRuntime().exec("su -c '$command'").waitFor()
+                val exit = executeCommand(command, 5, useSu = true)
+                if (exit != 0) {
+                    Log.w(TAG, "⚠️ Rollback command failed or skipped: $command (exit=$exit)")
+                }
             }
             
             Log.i(TAG, "✅ Kernel changes rolled back successfully")
@@ -630,9 +628,10 @@ class KernelSUIntegration private constructor() {
             // Check if system is responsive
             val startTime = System.currentTimeMillis()
             val testCommand = "echo 'stability_test'"
-            val process = Runtime.getRuntime().exec(testCommand)
-            val completed = process.waitFor(3, java.util.concurrent.TimeUnit.SECONDS)
+            val exit = executeCommand(testCommand, 3, useSu = false)
             val responseTime = System.currentTimeMillis() - startTime
+
+            val completed = exit >= 0
             
             // System should respond quickly
             val isStable = completed && responseTime < 2000
@@ -663,6 +662,33 @@ class KernelSUIntegration private constructor() {
             Log.i(TAG, "⏰ Automatic rollback scheduled in 30 minutes")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to schedule automatic rollback", e)
+        }
+    }
+
+    /**
+     * Helper to execute commands safely. When useSu is true the command will be
+     * executed via "su -c '<command>'" but only if KernelSU presence was detected
+     * as active. Returns exit code on success or negative error codes:
+     *  -1 = KernelSU not active (skipped), -2 = timeout, -3 = execution error
+     */
+    private fun executeCommand(command: String, timeoutSeconds: Long = 5, useSu: Boolean = true): Int {
+        try {
+            if (useSu && _kernelSUStatus.value != KernelSUStatus.PRESENT_ACTIVE) {
+                Log.w(TAG, "su not active; would run: $command")
+                return -1
+            }
+
+            val cmd = if (useSu) arrayOf("su", "-c", command) else arrayOf("sh", "-c", command)
+            val process = Runtime.getRuntime().exec(cmd)
+            val completed = process.waitFor(timeoutSeconds, TimeUnit.SECONDS)
+            if (!completed) {
+                process.destroyForcibly()
+                return -2
+            }
+            return process.exitValue()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error executing command: $command", e)
+            return -3
         }
     }
     
