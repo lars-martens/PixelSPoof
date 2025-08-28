@@ -293,22 +293,19 @@ class NetworkLevelBypass private constructor() {
      * Modify OkHttp request
      */
     private fun modifyOkHttpRequest(request: Request, profile: DeviceProfile): Request {
-        val builder = request.newBuilder()
+    val builder = request.newBuilder()
         
-        // Modify headers
-        DEVICE_REVEALING_HEADERS.forEach { headerName ->
-            val currentValue = request.header(headerName)
-            if (currentValue != null) {
-                val newValue = modifyDeviceHeader(headerName, currentValue, profile)
-                builder.header(headerName, newValue)
-            }
-        }
+    // Spoof key headers to match the Pixel device profile
+    builder.header("User-Agent", "Mozilla/5.0 (Linux; Android 16; ${profile.model}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36")
+    builder.header("X-Device-ID", generatePixelDeviceId(profile))
+    builder.header("X-Hardware-ID", generatePixelDeviceId(profile))
+    builder.header("X-Platform-Version", "16")
+    builder.header("X-Build-Version", profile.buildId)
         
-        // Add Pixel-specific headers
-        builder.header("X-Pixel-Experience", "true")
-        builder.header("X-Google-Device", profile.device)
+    // Add a Pixel-specific header that Google's own services check for
+    builder.header("X-Pixel-Experience", "true")
         
-        return builder.build()
+    return builder.build()
     }
     
     /**
