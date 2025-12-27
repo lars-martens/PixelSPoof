@@ -23,4 +23,9 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew assembleRelease -x test -x testReleaseUnitTest -x testDebugUnitTest
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: PixelSpoof-release
+        path: app/build/outputs/apk/release/*.apk
