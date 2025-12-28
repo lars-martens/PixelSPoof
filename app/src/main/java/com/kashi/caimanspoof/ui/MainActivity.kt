@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        prefs = getSharedPreferences("pixelspoof_settings", Context.MODE_WORLD_READABLE)
+        prefs = getSharedPreferences("pixelspoof_settings", Context.MODE_PRIVATE)
         configManager = ConfigManager.getInstance(this)
         
         setContent {
